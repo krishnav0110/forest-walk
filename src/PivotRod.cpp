@@ -1,5 +1,5 @@
 #include "PivotRod.hpp"
-#include "Math.hpp"
+#include "util/MathUtil.hpp"
 
 PivotRod::PivotRod(PivotRod* parent, float length, float restingAngle, float stiffness, float drag) {
     this->parent = parent;
@@ -14,16 +14,16 @@ PivotRod::PivotRod(PivotRod* parent, float length, float restingAngle, float sti
     this->drag = drag;
 }
 
-void PivotRod::applyForce(sf::Vector2f &force) {
-    sf::Vector3f dir3 = endPos - pos;
-    sf::Vector2f dir = sf::Vector2f(dir3.x, dir3.y) ;
-    float angle = Math::Vec2::angleBetween(force, dir);
+void PivotRod::ApplyForce(const glm::vec2 &force) {
+    glm::vec3 dir3 = endPos - pos;
+    glm::vec2 dir = glm::vec2(dir3.x, dir3.y) ;
+    float angle = MathUtil::Vec2::AngleBetween(force, dir);
     float torque_dir = dir.x * force.y - dir.y * force.x;
-    float torque = Math::Vec2::length(force) * sinf(angle);
+    float torque = MathUtil::Vec2::Length(force) * sinf(angle);
     ang_acc = torque_dir >= 0 ? torque : -torque;
 }
 
-void PivotRod::update(float dt) {
+void PivotRod::Update(float dt) {
     float d_angle = this->angle - restingAngle;
     float force = -stiffness * d_angle;
     ang_acc += force;

@@ -5,16 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "cl.exe build active project",
+            "name": "msbuild build active project",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/${workspaceFolderBasename}.exe",
+            "program": "${workspaceFolder}/build/Debug/${workspaceFolderBasename}.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
             "environment": [],
             "console": "integratedTerminal",
-            "preLaunchTask": "C/C++: cl.exe build active project"
+            "preLaunchTask": "C/C++: msbuild build active project"
         }
     ]
 }

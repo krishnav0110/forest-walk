@@ -4,19 +4,19 @@ Plane::Plane() {
     this->point = {0.0f, 0.0f, 0.0f};
     this->normal = {0.0f, 1.0f, 0.0f};
 }
-Plane::Plane(glm::vec3 &point, glm::vec3 &normal) {
+Plane::Plane(const glm::vec3 &point, const glm::vec3 &normal) {
     this->point = point;
     this->normal = normal;
 }
 
-float Plane::distance(glm::vec3 &point) {
+float Plane::Distance(const glm::vec3 &point) const {
     return glm::dot(point - this->point, normal);
 }
 
 Camera::Camera(float fov, float aspect, float zNear, float zFar) {
     this->pos = {0.0f, 0.08f, 0.0f};
     this->up = {0.0f, 1.0f, 0.0f};
-    this->front = {0.0f, sinf(0.24), -cosf(0.24)};
+    this->front = {0.0f, sinf(0.24f), -cosf(0.24f)};
     this->right = {1.0f, 0.0f, 0.0f};
     this->fov = fov;
     this->aspect = aspect;
@@ -24,7 +24,7 @@ Camera::Camera(float fov, float aspect, float zNear, float zFar) {
     this->zFar = zFar;
 }
 
-void Camera::update() {
+void Camera::Update() {
     float halfVSide = zFar * tanf(fov);
     float halfHSide = halfVSide * aspect;
     glm::vec3 frontMultFar = zFar * front;
@@ -35,28 +35,28 @@ void Camera::update() {
     bottomFace = {pos, glm::normalize(glm::cross(frontMultFar - up * halfVSide - pos, right))};
 }
 
-bool Camera::circleWithinCamera(glm::vec3 &point, float radius) {
+bool Camera::CircleWithinCamera(const glm::vec3 &point, float radius) const {
     float pointZ = glm::dot(point - pos, front);
 
     if(pointZ < zNear || pointZ - 1.2f > zFar) {
         return false;
     }
-    if(rightFace.distance(point) < radius) {
+    if(rightFace.Distance(point) < radius) {
         return true;
     }
-    else if(leftFace.distance(point) < radius) {
+    else if(leftFace.Distance(point) < radius) {
         return true;
     }
-    else if(bottomFace.distance(point) < radius) {
+    else if(bottomFace.Distance(point) < radius) {
         return true;
     }
-    else if(topFace.distance(point) < radius) {
+    else if(topFace.Distance(point) < radius) {
         return true;
     }
     return false;
 }
 
-bool Camera::zWithinCamera(glm::vec3 &point) {
+bool Camera::ZWithinCamera(const glm::vec3 &point) const {
     float pointZ = glm::dot(point - pos, front);
 
     if(pointZ < zNear || pointZ > zFar) {
@@ -65,11 +65,11 @@ bool Camera::zWithinCamera(glm::vec3 &point) {
     return true;
 }
 
-glm::mat4 Camera::viewMatrix() {
+glm::mat4 Camera::ViewMatrix() const {
     return glm::lookAt(pos, pos + front, up);
 }
 
-glm::mat4 Camera::projectionMatrix() {
+glm::mat4 Camera::ProjectionMatrix() const {
     glm::mat4 projectionMatrix = glm::mat4(1.0f);
     return glm::perspective(fov, aspect, zNear, zFar);
 }

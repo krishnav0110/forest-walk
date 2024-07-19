@@ -120,5 +120,5 @@
         "variant": "cpp",
         "xhash": "cpp"
     },
-    "C_Cpp.default.compilerPath": "E:/Apps/visualstudio/BuildTools/VC/Tools/MSVC/14.39.33519/bin/Hostx64/x64/cl.exe"
+    "C_Cpp.default.compilerPath": "E:/Apps/visualstudio/BuildTools/VC/Tools/MSVC/14.39.33519/bin/Hostx64/x64/cl.exe",
 }

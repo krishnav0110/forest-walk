@@ -1,11 +1,10 @@
-#include "FBO.hpp"
 #include <iostream>
-#include "settings.h"
+#include "FBO.hpp"
+#include "Renderer.hpp"
 
-FBO::FBO(int width, int height, bool multisample, std::vector<std::string> &names) {
-    unsigned int attachmentCount = names.size();
-    this->width = width;
-    this->height = height;
+FBO::FBO(const glm::ivec2 &size, bool multisample, const std::vector<std::string> &names) {
+    this->size = size;
+    int attachmentCount = (int)names.size();
 
     float quadVertices[] = {
         -1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f
@@ -14,9 +13,9 @@ FBO::FBO(int width, int height, bool multisample, std::vector<std::string> &name
         0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f
     };
     model.vao.Bind();
-    model.load(4, GL_TRIANGLE_STRIP);
-    model.loadVBO(std::string("positions"), sizeof(quadVertices), 2, 2 * sizeof(float), &quadVertices, GL_STATIC_DRAW);
-    model.loadVBO(std::string("textures"), sizeof(quadTex), 2, 2 * sizeof(float), &quadTex, GL_STATIC_DRAW);
+    model.Update(4, GL_TRIANGLE_STRIP);
+    model.LoadVBO(std::string("positions"), sizeof(quadVertices), 2, 2 * sizeof(float), &quadVertices, GL_STATIC_DRAW);
+    model.LoadVBO(std::string("textures"), sizeof(quadTex), 2, 2 * sizeof(float), &quadTex, GL_STATIC_DRAW);
     model.vao.Unbind();
 
 	glGenFramebuffers(1, &ID);
@@ -28,10 +27,10 @@ FBO::FBO(int width, int height, bool multisample, std::vector<std::string> &name
         glGenTextures(1, &(texIDs[names[i]]));
         if(multisample) {
             glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texIDs[names[i]]);
-            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 1, GL_RGBA, width, height, GL_TRUE);
+            glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 1, GL_RGBA, size.x, size.y, GL_TRUE);
         } else {
             glBindTexture(GL_TEXTURE_2D, texIDs[names[i]]);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_FLOAT, NULL);
         }
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -51,19 +50,18 @@ FBO::FBO(int width, int height, bool multisample, std::vector<std::string> &name
     glDrawBuffers(attachmentCount, attachments.data());
     
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cout << "Framebuffer not complete!\n";
+        std::cerr << "Framebuffer not complete!\n";
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void FBO::Bind() {
+void FBO::Bind() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, ID);
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, size.x, size.y);
 }
 
-void FBO::Unbind() {
+void FBO::Unbind() const {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 void FBO::Delete() {

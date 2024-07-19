@@ -4,23 +4,29 @@ VBO::VBO() {
 	glGenBuffers(1, &ID);
 }
 
-void VBO::load(GLsizeiptr size, const void *data, GLenum usage) {
+void VBO::Load(GLsizeiptr size, const void *data, GLenum usage) {
 	Bind();
 	glBufferData(GL_ARRAY_BUFFER, size, data, usage);
 	Unbind();
 }
 
-void VBO::update(GLsizeiptr size, const void *data) {
+void VBO::Update(GLintptr offset, GLsizeiptr size, const void *data) {
+	Bind();
+	glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+	Unbind();
+}
+
+void VBO::Update(GLsizeiptr size, const void *data) {
 	Bind();
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
 	Unbind();
 }
 
-void VBO::Bind() {
+void VBO::Bind() const {
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 }
 
-void VBO::Unbind() {
+void VBO::Unbind() const {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

@@ -2,11 +2,12 @@
 #define _PIVOTROD_H_
 
 #include <SFML/Graphics.hpp>
+#include <glm/glm.hpp>
 
 struct PivotRod {
     PivotRod *parent = NULL;
-    sf::Vector3f pos;
-    sf::Vector3f endPos;
+    glm::vec3 pos;
+    glm::vec3 endPos;
     float length = 0;
     float angle = 0;
     float ang_vel = 0;
@@ -18,9 +19,8 @@ struct PivotRod {
 
     PivotRod(PivotRod* parent, float length, float restingAngle, float stiffness, float drag);
 
-    void applyForce(sf::Vector2f &force);
-
-    void update(float dt);
+    void ApplyForce(const glm::vec2 &force);
+    void Update(float dt);
 };
 
 #endif

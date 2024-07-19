@@ -3,21 +3,21 @@
 
 #include <map>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 #include "Model.hpp"
 
 class FBO {
 private:
-	int width;
-	int height;
+	glm::ivec2 size;
 
 public:
 	GLuint ID;
 	std::map<std::string, GLuint> texIDs;
     Model model;
-	FBO(int width, int height, bool multisample, std::vector<std::string> &names);
+	FBO(const glm::ivec2 &size, bool multisample, const std::vector<std::string> &names);
 
-	void Bind();
-	void Unbind();
+	void Bind() const;
+	void Unbind() const;
 	void Delete();
 };
 

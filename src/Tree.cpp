@@ -1,39 +1,39 @@
 #include "Tree.hpp"
-#include "Math.hpp"
+#include "util/MathUtil.hpp"
 
 Leaf::Leaf(PivotRod *parent) {
     this->parent = parent;
     this->pos = {0.0f, 0.0f, 0.0f};
 }
 
-Tree::Tree(sf::Vector3f &pos) {
+Tree::Tree(const glm::vec3 &pos) {
     this->pos = pos;
 }
 
-void Tree::applyForce(sf::Vector2f &force) {
+void Tree::ApplyForce(const glm::vec2 &force) {
     for(PivotRod *rod: branches) {
-        rod->applyForce(force);
+        rod->ApplyForce(force);
     }
     for(PivotRod *leaf: leaves) {
-        leaf->applyForce(force);
+        leaf->ApplyForce(force);
     }
 }
 
-void Tree::update(float dt) {
+void Tree::Update(float dt) {
     branches[0]->pos = pos;
     for(PivotRod *rod: branches) {
         if(rod->parent != NULL) {
             rod->pos = rod->parent->endPos;
         }
-        rod->update(dt);
+        rod->Update(dt);
     }
     for(PivotRod *leaf: leaves) {
         leaf->pos = leaf->parent->endPos;
-        leaf->update(dt);
+        leaf->Update(dt);
     }
 }
 
-void Tree::addVertices(std::vector<sf::Vector3f> &vertices, std::vector<float> &widths) {
+void Tree::AddVertices(std::vector<glm::vec3> &vertices, std::vector<float> &widths) {
     for(int i = 0; i < branches.size(); ++i) {
         PivotRod *rod = branches[i];
         vertices.emplace_back(rod->pos);
@@ -43,7 +43,7 @@ void Tree::addVertices(std::vector<sf::Vector3f> &vertices, std::vector<float> &
     }
 }
 
-void Tree::addLeafVertices(std::vector<sf::Vector3f> &vertices) {
+void Tree::AddLeafVertices(std::vector<glm::vec3> &vertices) {
     for(PivotRod *leaf: leaves) {
         vertices.emplace_back(leaf->pos);
         vertices.emplace_back(leaf->endPos);

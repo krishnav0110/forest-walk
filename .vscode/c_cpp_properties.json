@@ -4,8 +4,6 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/include/",
-                "${workspaceFolder}/lib/include",
                 "E:/Apps/visualstudio/BuildTools/VC/Tools/MSVC/14.39.33519/**",
                 "C:/Program Files (x86)/Windows Kits/10/Include/**"
             ],

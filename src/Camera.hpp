@@ -8,8 +8,8 @@ struct Plane {
     glm::vec3 normal = {0.0f, 1.0f, 0.0f};
 
     Plane();
-    Plane(glm::vec3 &point, glm::vec3 &normal);
-    float distance(glm::vec3 &point);
+    Plane(const glm::vec3 &point, const glm::vec3 &normal);
+    float Distance(const glm::vec3 &point) const;
 };
 
 struct Camera {
@@ -29,11 +29,12 @@ struct Camera {
     Plane leftFace;
 
     Camera(float fov, float aspect, float zNear, float zFar);
-    void update();
-    bool circleWithinCamera(glm::vec3 &point, float radius);
-    bool zWithinCamera(glm::vec3 &point);
-    glm::mat4 viewMatrix();
-    glm::mat4 projectionMatrix();
+    void Update();
+
+    bool CircleWithinCamera(const glm::vec3 &point, float radius) const;
+    bool ZWithinCamera(const glm::vec3 &point) const;
+    glm::mat4 ViewMatrix() const;
+    glm::mat4 ProjectionMatrix() const;
 };
 
 #endif

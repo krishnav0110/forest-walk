@@ -10,7 +10,7 @@ private:
 
 public:
     TreeGenerator(std::default_random_engine &random);
-    Tree* generate(sf::Vector3f &pos);
+    Tree* Generate(const glm::vec3 &pos);
 };
 
 #endif

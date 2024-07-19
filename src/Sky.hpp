@@ -2,14 +2,15 @@
 #define _SKY_H_
 
 #include <SFML/Graphics.hpp>
-#include "Model.hpp"
+#include <glm/glm.hpp>
+#include "core/Model.hpp"
 
 struct Sky {
-    sf::Vector2f sunPos;
+    glm::vec2 sunPos;
     Model sunModel;
     Model model;
     sf::Texture sunTex;
-    Sky();
+    Sky(const glm::ivec2 &windowSize);
 };
 
 #endif

@@ -1,11 +1,11 @@
 #include "GrassBlade.hpp"
-#include "Math.hpp"
+#include "util/MathUtil.hpp"
 
-GrassBlade::GrassBlade(sf::Vector3f &pos, float length, float angle, float stiffness) {
+GrassBlade::GrassBlade(const glm::vec3 &pos, float length, float angle, float stiffness) {
     this->pos = pos;
     float drag = 2.0f;
 
-    PivotRod *p1 = new PivotRod(NULL, length, Math::HALF_PI + angle, stiffness, drag);
+    PivotRod *p1 = new PivotRod(NULL, length, MathUtil::HALF_PI + angle, stiffness, drag);
     length *= 0.75;
     PivotRod *p2 = new PivotRod(p1, length, angle, stiffness, drag);
     length *= 0.75;
@@ -15,23 +15,23 @@ GrassBlade::GrassBlade(sf::Vector3f &pos, float length, float angle, float stiff
     blades.emplace_back(p3);
 }
 
-void GrassBlade::applyForce(sf::Vector2f &force) {
+void GrassBlade::ApplyForce(const glm::vec2 &force) {
     for(PivotRod *rod: blades) {
-        rod->applyForce(force);
+        rod->ApplyForce(force);
     }
 }
 
-void GrassBlade::update(float dt) {
+void GrassBlade::Update(float dt) {
     blades[0]->pos = pos;
     for(PivotRod *rod: blades) {
         if(rod->parent != NULL) {
             rod->pos = rod->parent->endPos;
         }
-        rod->update(dt);
+        rod->Update(dt);
     }
 }
 
-void GrassBlade::addVertices(std::vector<sf::Vector3f> &vertices, std::vector<float> &widths) {
+void GrassBlade::AddVertices(std::vector<glm::vec3> &vertices, std::vector<float> &widths) {
     float width = 0.0015f;
 
     for(PivotRod *rod: blades) {
@@ -40,18 +40,6 @@ void GrassBlade::addVertices(std::vector<sf::Vector3f> &vertices, std::vector<fl
         width -= 0.0005f;
         vertices.emplace_back(rod->endPos);
         widths.emplace_back(width);
-        // Vertex v1{rod->pos - width, color};
-        // Vertex v2{rod->pos + width, color};
-        // width.x -= 0.0005f;
-        // Vertex v3{rod->endPos - width, color};
-        // Vertex v4{rod->endPos + width, color};
-        
-        // vertices.emplace_back(v1);
-        // vertices.emplace_back(v2);
-        // vertices.emplace_back(v3);
-        // vertices.emplace_back(v3);
-        // vertices.emplace_back(v2);
-        // vertices.emplace_back(v4);
     }
 }
 

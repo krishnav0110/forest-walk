@@ -2,15 +2,17 @@
 #define _LENSFLARE_H_
 
 #include <SFML/Graphics.hpp>
-#include "Model.hpp"
+#include <glm/glm.hpp>
+#include "core/Model.hpp"
 
 struct LensFlare {
+    glm::vec2 windowSize;
     Model model;
     sf::Texture flareTex;
     float alpha;
 
-    LensFlare();
-    void update(sf::Vector2f &sunPos);
+    LensFlare(const glm::ivec2 &windowSize);
+    void Update(const glm::vec2 &sunPos);
 };
 
 #endif

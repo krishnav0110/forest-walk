@@ -5,19 +5,24 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Graphics.hpp>
 #include <glm/ext.hpp>
-#include "settings.h"
-#include "Renderer.hpp"
+#include "core/Renderer.hpp"
+#include "core/FBO.hpp"
 #include "Camera.hpp"
 #include "Sky.hpp"
 #include "Forest.hpp"
 #include "LensFlare.hpp"
-#include "FBO.hpp"
+
+
+
+
 
 int main(int argv, char** args) {
+    glm::ivec2 windowSize(768, 512);
+
     sf::ContextSettings settings;
     settings.antialiasingLevel = 1;
     settings.minorVersion = 3;
-    sf::Window window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "ForestWalk", sf::Style::Default, settings);
+    sf::Window window(sf::VideoMode(windowSize.x, windowSize.y), "ForestWalk", sf::Style::Default, settings);
     window.setFramerateLimit(60);
     window.setActive(true);
 
@@ -26,9 +31,22 @@ int main(int argv, char** args) {
         exit(1);
     }
 
-    // glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    Camera camera(glm::radians(45.0f), (float)windowSize.x / windowSize.y, 0.1f, 10.0f);
+
+    Renderer renderer;
+    Sky sky(windowSize);
+    Forest forest;
+    LensFlare lensFlare(windowSize);
+
+    FBO multiSampleFBO(windowSize, true, std::vector({std::string("normal"), std::string("bright")}));
+    FBO hdrFBO(windowSize, false, std::vector({std::string("normal"), std::string("bright")}));
+    FBO godRaysFBO({windowSize.x * 0.75f, windowSize.y * 0.75f}, false, std::vector({std::string("godrays")}));
+    FBO blurFBO(windowSize, false, std::vector({std::string("blur")}));
+
+
 
     sf::Shader skyShader;
     sf::Shader sunShader;
@@ -39,6 +57,7 @@ int main(int argv, char** args) {
     sf::Shader finalShader;
     sf::Shader flareShader;
     sf::Shader sampleShader;
+
     skyShader.loadFromFile("shaders/sky.vert", "shaders/sky.frag");
     sunShader.loadFromFile("shaders/sun.vert", "shaders/sun.frag");
     forestShader.loadFromFile("shaders/forest.vert", "shaders/forest.geom", "shaders/forest.frag");
@@ -49,28 +68,16 @@ int main(int argv, char** args) {
     flareShader.loadFromFile("shaders/flare.vert", "shaders/flare.frag");
     sampleShader.loadFromFile("shaders/sample.vert", "shaders/sample.frag");
 
-    Camera camera(glm::radians(45.0f), (float)WINDOW_WIDTH / WINDOW_HEIGHT, 0.1f, 1.0f);
+    forestShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.ViewMatrix())));
+    forestShader.setUniform("projectionMat", sf::Glsl::Mat4(glm::value_ptr(camera.ProjectionMatrix())));
 
-    forestShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.viewMatrix())));
-    forestShader.setUniform("projectionMat", sf::Glsl::Mat4(glm::value_ptr(camera.projectionMatrix())));
-    leavesShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.viewMatrix())));
-    leavesShader.setUniform("projectionMat", sf::Glsl::Mat4(glm::value_ptr(camera.projectionMatrix())));
-    // glUniform1i(glGetUniformLocation(forestShader.ID, "texture1"), 0);
-    // godRaysShader.setUniform("scene", 0);
-    // godRaysShader.setUniform("bloomBlur", 1);
+    leavesShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.ViewMatrix())));
+    leavesShader.setUniform("projectionMat", sf::Glsl::Mat4(glm::value_ptr(camera.ProjectionMatrix())));
 
-    Renderer renderer;
-    Sky sky;
-    Forest forest;
-    LensFlare lensFlare;
-
-    FBO multiSampleFBO(WINDOW_WIDTH, WINDOW_HEIGHT, true, std::vector({std::string("normal"), std::string("bright")}));
-    FBO hdrFBO(WINDOW_WIDTH, WINDOW_HEIGHT, false, std::vector({std::string("normal"), std::string("bright")}));
-    FBO godRaysFBO(WINDOW_WIDTH * 0.75f, WINDOW_HEIGHT * 0.75f, false, std::vector({std::string("godrays")}));
-    FBO blurFBO(WINDOW_WIDTH * 1.0f, WINDOW_HEIGHT * 1.0f, false, std::vector({std::string("blur")}));
-
-    godRaysShader.setUniform("sunPos", sky.sunPos);
+    godRaysShader.setUniform("sunPos", sf::Glsl::Vec2(sky.sunPos.x, sky.sunPos.y));
     
+
+
     bool running = true;
     float dt = 1.0f / 60.0f;
     float delta = 0.0f;
@@ -95,42 +102,25 @@ int main(int argv, char** args) {
                 case sf::Event::Resized:
                     glViewport(0, 0, event.size.width, event.size.height);
                 break;
-                case sf::Event::MouseButtonPressed:
-                    forest.windForce += 20.0f;
-                break;
-                case sf::Event::MouseButtonReleased:
-                    forest.windForce -= 20.0f;
-                break;
-                case sf::Event::KeyPressed:
-                    if(event.key.code == sf::Keyboard::W) {
-                        camera.pos.z -= 0.5f * dt;
-                    } else if(event.key.code == sf::Keyboard::S) {
-                        camera.pos.z += 0.5f * dt;
-                    }
-                break;
             }
         }
 
         camera.pos.z -= 0.1f * dt;
-        camera.update();
-        forest.generate(camera);
-        forest.update(dt, camera);
-        lensFlare.update(sky.sunPos);
+        camera.Update();
+        forest.Generate(camera);
+        forest.Update(dt, camera);
+        lensFlare.Update(sky.sunPos);
 
         // rendering to multisample fbo
         multiSampleFBO.Bind();
 
-        forestShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.viewMatrix())));
+        forestShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.ViewMatrix())));
         renderer.render(sky.model, &skyShader);
         renderer.render(sky.sunModel, sky.sunTex, &sunShader);
         renderer.render(forest.branchesModel, &forestShader);
 
-        leavesShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.viewMatrix())));
+        leavesShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.ViewMatrix())));
         renderer.render(forest.leavesModel, forest.leafTex, &leavesShader);
-
-        flareShader.setUniform("alpha", lensFlare.alpha);
-        renderer.render(lensFlare.model, lensFlare.flareTex, &flareShader);
-        multiSampleFBO.Unbind();
 
         // rendering to the hdr fbo
         glBindFramebuffer(GL_READ_FRAMEBUFFER, multiSampleFBO.ID);
@@ -139,7 +129,7 @@ int main(int argv, char** args) {
             glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
             glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
             glClear(GL_COLOR_BUFFER_BIT);
-            glBlitFramebuffer(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            glBlitFramebuffer(0, 0, windowSize.x, windowSize.y, 0, 0, windowSize.x, windowSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
         }
         glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -158,6 +148,10 @@ int main(int argv, char** args) {
         // rendering to the screen
         glClear(GL_COLOR_BUFFER_BIT);
         renderer.render(godRaysFBO.model, std::vector({hdrFBO.texIDs["normal"], blurFBO.texIDs["blur"]}), &finalShader);
+
+        flareShader.setUniform("alpha", lensFlare.alpha);
+        renderer.render(lensFlare.model, lensFlare.flareTex, &flareShader);
+        multiSampleFBO.Unbind();
 
         window.display();
     }

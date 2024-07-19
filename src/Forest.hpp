@@ -3,7 +3,7 @@
 
 #include <random>
 #include "Camera.hpp"
-#include "Model.hpp"
+#include "core/Model.hpp"
 #include "GrassBlade.hpp"
 #include "Tree.hpp"
 
@@ -23,8 +23,8 @@ public:
 
     Forest();
     ~Forest();
-    void generate(Camera &camera);
-    void update(float dt, Camera &camera);
+    void Generate(const Camera &camera);
+    void Update(float dt, const Camera &camera);
 };
 
 #endif

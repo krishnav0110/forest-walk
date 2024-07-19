@@ -1,14 +1,13 @@
 #include <queue>
 
 #include "TreeGenerator.hpp"
-#include "settings.h"
-#include "Math.hpp"
+#include "util/MathUtil.hpp"
 
 TreeGenerator::TreeGenerator(std::default_random_engine &random): random(random) {
 
 }
 
-Tree* TreeGenerator::generate(sf::Vector3f &pos) {
+Tree* TreeGenerator::Generate(const glm::vec3 &pos) {
     float drag = 2.0f;
     int iterations = 0;
     int branchIterations = 9;
@@ -24,7 +23,7 @@ Tree* TreeGenerator::generate(sf::Vector3f &pos) {
     float baseBranchLength = 0.075f;
 
     float branchLength = baseBranchLength + baseBranchLength * random() / random.max();
-    float angle = Math::HALF_PI + Math::PI / 12 * (1 - 2.0f * random() / random.max());
+    float angle = MathUtil::HALF_PI + MathUtil::PI / 12 * (1 - 2.0f * random() / random.max());
     float stiffness = 200.0f + 200.0f * random() / random.max();
 
     std::queue<PivotRod*> branchQueue;
@@ -44,8 +43,8 @@ Tree* TreeGenerator::generate(sf::Vector3f &pos) {
             float branchWidth1 = width * 0.9f;
             float branchWidth2 = width * 0.7f;
 
-            float branchAngle1 = Math::PI / 18 * (1.0f - 2.0f * random() / random.max());
-            float branchAngle2 = Math::PI / 3 * (1.0f - 2.0f * random() / random.max());
+            float branchAngle1 = MathUtil::PI / 18 * (1.0f - 2.0f * random() / random.max());
+            float branchAngle2 = MathUtil::PI / 3 * (1.0f - 2.0f * random() / random.max());
 
             branchLength = branch->length * (0.8f + 0.1f * random() / random.max());
 
@@ -62,7 +61,7 @@ Tree* TreeGenerator::generate(sf::Vector3f &pos) {
             --iterations;
         }
         if(iterations < leafThreshold) {
-            tree->leaves.emplace_back(new PivotRod(branch, 0.03f, Math::PI_2 * random() / random.max(), 5.0f, 0.1f));
+            tree->leaves.emplace_back(new PivotRod(branch, 0.03f, MathUtil::PI_2 * random() / random.max(), 5.0f, 0.1f));
         }
     }
     return tree;

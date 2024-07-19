@@ -7,7 +7,7 @@
 class TreeGenerator;
 
 struct Leaf {
-    sf::Vector3f pos;
+    glm::vec3 pos;
     PivotRod *parent;
 
     Leaf(PivotRod *parent);
@@ -22,12 +22,12 @@ private:
     friend class TreeGenerator;
 
 public:
-    sf::Vector3f pos;
-    Tree(sf::Vector3f &pos);
-    void applyForce(sf::Vector2f &force);
-    void update(float dt);
-    void addVertices(std::vector<sf::Vector3f> &vertices, std::vector<float> &widths);
-    void addLeafVertices(std::vector<sf::Vector3f> &vertices);
+    glm::vec3 pos;
+    Tree(const glm::vec3 &pos);
+    void ApplyForce(const glm::vec2 &force);
+    void Update(float dt);
+    void AddVertices(std::vector<glm::vec3> &vertices, std::vector<float> &widths);
+    void AddLeafVertices(std::vector<glm::vec3> &vertices);
     ~Tree();
 };
 

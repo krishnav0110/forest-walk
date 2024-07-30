@@ -19,6 +19,8 @@ public:
 	void Bind() const;
 	void Unbind() const;
 	void Delete();
+
+	glm::ivec2 GetSize() const;
 };
 
 #endif

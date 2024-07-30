@@ -67,3 +67,7 @@ void FBO::Unbind() const {
 void FBO::Delete() {
 	glDeleteFramebuffers(1, &ID);
 }
+
+glm::ivec2 FBO::GetSize() const {
+    return size;
+}

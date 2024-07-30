@@ -36,7 +36,6 @@ int main(int argv, char** args) {
 
     Camera camera(glm::radians(45.0f), (float)windowSize.x / windowSize.y, 0.1f, 10.0f);
 
-    Renderer renderer;
     Sky sky(windowSize);
     Forest forest;
     LensFlare lensFlare(windowSize);
@@ -88,7 +87,7 @@ int main(int argv, char** args) {
         delta += elapsedTime.asSeconds();
 
         if(delta < dt) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             continue;
         }
         delta = 0.0f;
@@ -115,42 +114,32 @@ int main(int argv, char** args) {
         multiSampleFBO.Bind();
 
         forestShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.ViewMatrix())));
-        renderer.render(sky.model, &skyShader);
-        renderer.render(sky.sunModel, sky.sunTex, &sunShader);
-        renderer.render(forest.branchesModel, &forestShader);
+        Renderer::render(sky.model, &skyShader);
+        Renderer::render(sky.sunModel, sky.sunTex, &sunShader);
+        Renderer::render(forest.branchesModel, &forestShader);
 
         leavesShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.ViewMatrix())));
-        renderer.render(forest.leavesModel, forest.leafTex, &leavesShader);
+        Renderer::render(forest.leavesModel, forest.leafTex, &leavesShader);
 
         // rendering to the hdr fbo
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, multiSampleFBO.ID);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, hdrFBO.ID);
-        for(int i = 0; i < 2; ++i) {
-            glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
-            glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
-            glClear(GL_COLOR_BUFFER_BIT);
-            glBlitFramebuffer(0, 0, windowSize.x, windowSize.y, 0, 0, windowSize.x, windowSize.y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        }
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        Renderer::render(multiSampleFBO, hdrFBO, 2);
 
         // rendering to the god rays fbo
         godRaysFBO.Bind();
         glClear(GL_COLOR_BUFFER_BIT);
-        renderer.render(hdrFBO.model, hdrFBO.texIDs["bright"], &godRaysShader);
-        godRaysFBO.Unbind();
+        Renderer::render(hdrFBO.model, hdrFBO.texIDs["bright"], &godRaysShader);
 
         // rendering to blur fbo
         blurFBO.Bind();
-        renderer.render(blurFBO.model, godRaysFBO.texIDs["godrays"], &blurShader);
+        Renderer::render(blurFBO.model, godRaysFBO.texIDs["godrays"], &blurShader);
         blurFBO.Unbind();
 
         // rendering to the screen
         glClear(GL_COLOR_BUFFER_BIT);
-        renderer.render(godRaysFBO.model, std::vector({hdrFBO.texIDs["normal"], blurFBO.texIDs["blur"]}), &finalShader);
+        Renderer::render(godRaysFBO.model, std::vector({hdrFBO.texIDs["normal"], blurFBO.texIDs["blur"]}), &finalShader);
 
         flareShader.setUniform("alpha", lensFlare.alpha);
-        renderer.render(lensFlare.model, lensFlare.flareTex, &flareShader);
+        Renderer::render(lensFlare.model, lensFlare.flareTex, &flareShader);
         multiSampleFBO.Unbind();
 
         window.display();

@@ -34,3 +34,16 @@ void Renderer::render(const Model &model, const std::vector<GLuint> &texIDs, con
     }
     render(model);
 }
+
+void Renderer::render(const FBO &srcFBO, const FBO &destFBO, unsigned int attachmentCount) {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFBO.ID);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destFBO.ID);
+    for(unsigned int i = 0; i < attachmentCount; ++i) {
+        glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
+        glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glBlitFramebuffer(0, 0, srcFBO.GetSize().x, srcFBO.GetSize().y, 0, 0, destFBO.GetSize().x, destFBO.GetSize().y, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    }
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}

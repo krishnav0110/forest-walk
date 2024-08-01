@@ -7,12 +7,34 @@
 #include "GrassBlade.hpp"
 #include "Tree.hpp"
 
-class Forest {
-private:
-    std::default_random_engine random;
+struct ForestLayer {
+    float z;
+    GLintptr branchesVboOffset;
+    GLsizeiptr branchesVboSize;
+
+    GLintptr branchWidthsVboOffset;
+    GLsizeiptr branchWidthsVboSize;
+
+    GLintptr leafVboOffset;
+    GLsizeiptr leafVboSize;
+
     std::vector<GrassBlade*> grass;
     std::vector<Tree*> trees;
-    float lastZ;
+};
+
+class Forest {
+private:
+    const static int LAYER_COUNT;
+    const static float GRASS_X_MAX;
+    const static float GRASS_SPACING;
+    const static float LAYER_Z_START_FROM_CAMERA;
+    const static float LAYER_Z_SPACING;
+    const static float LAYER_Z_UPDATE_RANGE;
+
+    std::default_random_engine random;
+    std::vector<ForestLayer> forestLayers;
+
+    void Init();
 
 public:
     float windForce;
@@ -23,7 +45,7 @@ public:
 
     Forest();
     ~Forest();
-    void Generate(const Camera &camera);
+    void UpdateLayer(ForestLayer &forestLayer, const Camera &camera);
     void Update(float dt, const Camera &camera);
 };
 

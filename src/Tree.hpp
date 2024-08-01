@@ -26,6 +26,7 @@ public:
     Tree(const glm::vec3 &pos);
     void ApplyForce(const glm::vec2 &force);
     void Update(float dt);
+    void AddVertices(std::vector<glm::vec3> &vertices);
     void AddVertices(std::vector<glm::vec3> &vertices, std::vector<float> &widths);
     void AddLeafVertices(std::vector<glm::vec3> &vertices);
     ~Tree();

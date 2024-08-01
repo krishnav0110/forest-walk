@@ -14,7 +14,7 @@ float Plane::Distance(const glm::vec3 &point) const {
 }
 
 Camera::Camera(float fov, float aspect, float zNear, float zFar) {
-    this->pos = {0.0f, 0.08f, 0.0f};
+    this->pos = {0.0f, 0.065f, 0.0f};
     this->up = {0.0f, 1.0f, 0.0f};
     this->front = {0.0f, sinf(0.24f), -cosf(0.24f)};
     this->right = {1.0f, 0.0f, 0.0f};

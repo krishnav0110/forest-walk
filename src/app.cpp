@@ -69,9 +69,15 @@ int main(int argv, char** args) {
 
     forestShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.ViewMatrix())));
     forestShader.setUniform("projectionMat", sf::Glsl::Mat4(glm::value_ptr(camera.ProjectionMatrix())));
+    forestShader.setUniform("color", sf::Glsl::Vec3(0.86f, 0.45f, 0.24f));
+    forestShader.setUniform("minOpacity", 0.5f);
+    forestShader.setUniform("maxOpacity", 1.0f);
 
     leavesShader.setUniform("viewMat", sf::Glsl::Mat4(glm::value_ptr(camera.ViewMatrix())));
     leavesShader.setUniform("projectionMat", sf::Glsl::Mat4(glm::value_ptr(camera.ProjectionMatrix())));
+    leavesShader.setUniform("color", sf::Glsl::Vec3(0.86f, 0.45f, 0.24f));
+    leavesShader.setUniform("minOpacity", 0.5f);
+    leavesShader.setUniform("maxOpacity", 1.0f);
 
     godRaysShader.setUniform("sunPos", sf::Glsl::Vec2(sky.sunPos.x, sky.sunPos.y));
     
@@ -101,12 +107,19 @@ int main(int argv, char** args) {
                 case sf::Event::Resized:
                     glViewport(0, 0, event.size.width, event.size.height);
                 break;
+                case sf::Event::KeyPressed:
+                    if(event.key.code == sf::Keyboard::W) {
+                        camera.pos.z -= 1.0f * dt;
+                    }
+                    else if(event.key.code == sf::Keyboard::S) {
+                        camera.pos.z += 1.0f * dt;
+                    }
+                break;
             }
         }
 
         camera.pos.z -= 0.1f * dt;
         camera.Update();
-        forest.Generate(camera);
         forest.Update(dt, camera);
         lensFlare.Update(sky.sunPos);
 

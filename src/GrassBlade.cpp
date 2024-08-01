@@ -31,6 +31,13 @@ void GrassBlade::Update(float dt) {
     }
 }
 
+void GrassBlade::AddVertices(std::vector<glm::vec3> &vertices) {
+    for(PivotRod *rod: blades) {
+        vertices.emplace_back(rod->pos);
+        vertices.emplace_back(rod->endPos);
+    }
+}
+
 void GrassBlade::AddVertices(std::vector<glm::vec3> &vertices, std::vector<float> &widths) {
     float width = 0.0015f;
 

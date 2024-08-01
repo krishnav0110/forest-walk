@@ -33,6 +33,14 @@ void Tree::Update(float dt) {
     }
 }
 
+void Tree::AddVertices(std::vector<glm::vec3> &vertices) {
+    for(int i = 0; i < branches.size(); ++i) {
+        PivotRod *rod = branches[i];
+        vertices.emplace_back(rod->pos);
+        vertices.emplace_back(rod->endPos);
+    }
+}
+
 void Tree::AddVertices(std::vector<glm::vec3> &vertices, std::vector<float> &widths) {
     for(int i = 0; i < branches.size(); ++i) {
         PivotRod *rod = branches[i];

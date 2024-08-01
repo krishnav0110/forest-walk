@@ -13,6 +13,7 @@ public:
     GrassBlade(const glm::vec3 &pos, float length, float angle, float stiffness);
     void ApplyForce(const glm::vec2 &force);
     void Update(float dt);
+    void AddVertices(std::vector<glm::vec3> &vertices);
     void AddVertices(std::vector<glm::vec3> &vertices, std::vector<float> &widths);
     ~GrassBlade();
 };
